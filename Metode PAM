@@ -1,0 +1,44 @@
+library(readxl)
+library(lmtest)
+library(psych)
+library(clValid)
+library(car)
+library(faraway)
+library(REdaS)
+library(psych,corrgram)
+library(MVN)
+library(fpc)
+library(cluster)
+library(stats)
+library(factoextra)
+library(dplyr)
+library(RCurl)
+library(protoclust)
+DATA=read_excel("E:/INDIKATOR.xlsx")
+summary(DATA)
+boxplot(DATA[,2:6], main="Boxplot")
+KMOS(DATA[,2:6])
+eigen(cov(DATA[,2:6]))$values
+cor(DATA[,2:6])
+#Standarisasi Data
+DataSD<-scale(DATA[,2:6])
+DataSD
+#UJI KMOS
+KMOS(DataSD)
+#UJI ASUMSI MULTIKOLINIERITAS
+eigen(cov(DataSD))$values
+#JARAK EUCLIDEAN
+d1<-dist(scale(DATA[,2:6]))
+d1
+#PENENTUAN CLUSTER OPTIMAL
+fviz_nbclust(DataSD, pam, method = "silhouette")
+#metode PAM
+pam.hasil <- pam(DataSD, 2)
+summary(pam.hasil)
+pam.hasil$medoids
+data.frame(DATA$Kecamatan,pam.hasil$clustering)
+fviz_cluster(pam.hasil)
+DATA[,2:6] %>%
+mutate(Cluster = pam.hasil$cluster) %>%
+group_by(Cluster) %>%
+summarise_all("mean")
